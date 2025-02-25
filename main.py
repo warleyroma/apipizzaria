@@ -1,5 +1,5 @@
-!pip install mysql-connector-python
-!pip install fastapi uvicorn
+pip install mysql-connector-python
+pip install fastapi uvicorn
 
 import mysql.connector
 from fastapi import FastAPI, HTTPException
