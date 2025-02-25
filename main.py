@@ -46,6 +46,11 @@ def criar_cliente(cliente: Cliente):
         cursor.close()
         conn.close()
 
+
+@app.get("/")
+def read_root():
+    return {"message": "API está rodando!"}
+
 # Rota para listar clientes
 @app.get("/clientes/")
 def listar_clientes():
