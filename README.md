@@ -6,10 +6,6 @@ Este repositório contém a implementação de uma **API REST robusta e escaláv
 - ✅ Gerenciamento de clientes (cadastro, listagem, atualização e remoção)  
 - ✅ Gerenciamento de produtos do cardápio (pizzas, bebidas e acompanhamentos)  
 - ✅ Criação e acompanhamento de pedidos com status dinâmico  
-- ✅ Integração com banco de dados **MySQL** hospedado em uma instância **AWS EC2**
-- ✅ Gerenciamento eficiente do banco de dados com **MySQL Workbench**, permitindo consultas, modelagem e administração da instância MySQL na AWS EC2.
-- ✅ Deploy da API na **Render**, tornando-a acessível globalmente  
-- ✅ **Testes e documentação via Postman**, garantindo um fluxo de requisições eficiente e validado
 
 ## ⚙️ Infraestrutura e Ferramentas Utilizadas
 
