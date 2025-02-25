@@ -1,6 +1,3 @@
-pip install mysql-connector-python
-pip install fastapi uvicorn
-
 import mysql.connector
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
