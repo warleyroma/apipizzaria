@@ -1,18 +1,9 @@
-import mysql.connector
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
 
-# Configuração do banco de dados
-DB_CONFIG = {
-    "host": "3.83.68.65",  # IP do MySQL na AWS
-    "port": 3306,
-    "user": "warley",
-    "password": "Denisia@23",
-    "database": "pizzaria"
-}
+from db_connection import db
 
 # Inicializar a API
 app = FastAPI()
+
 
 # Modelo para Cliente
 class Cliente(BaseModel):
