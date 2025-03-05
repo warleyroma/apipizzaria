@@ -1,114 +1,70 @@
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel, constr
+from enum import Enum
+from db_connection import db  # Importando a conexão com Firestore
 
-from db_connection import db
-
-# Inicializar a API
 app = FastAPI()
 
+# Criando Enum para status do pedido
+class StatusPedido(str, Enum):
+    PENDENTE = "pendente"
+    FINALIZADO = "finalizado"
+    CANCELADO = "cancelado"
 
-# Modelo para Cliente
-class Cliente(BaseModel):
+# Modelos Pydantic
+class ClienteCreate(BaseModel):
     nome: str
-    telefone: str
+    telefone: constr(regex=r"^\d{10,11}$")  # Apenas números com 10-11 dígitos
 
-# Modelo para Produto
-class Produto(BaseModel):
+class ProdutoCreate(BaseModel):
     nome: str
     descricao: str
     preco: float
 
-# Modelo para Pedido
-class Pedido(BaseModel):
-    cliente_id: int
-    status: str
+class PedidoCreate(BaseModel):
+    cliente_id: str  # Firestore usa strings como IDs
+    status: StatusPedido
     total: float
 
-# Rota para criar um cliente
+# Rota para criar cliente
 @app.post("/clientes/")
-def criar_cliente(cliente: Cliente):
-    conn = mysql.connector.connect(**DB_CONFIG)
-    cursor = conn.cursor()
-    try:
-        cursor.execute("INSERT INTO clientes (nome, telefone) VALUES (%s, %s)", (cliente.nome, cliente.telefone))
-        conn.commit()
-        return {"message": "Cliente criado com sucesso!"}
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    finally:
-        cursor.close()
-        conn.close()
-
-
-@app.get("/")
-def read_root():
-    return {"message": "API está rodando!"}
+def criar_cliente(cliente: ClienteCreate):
+    doc_ref = db.collection("clientes").add(cliente.dict())
+    return {"message": "Cliente criado com sucesso!", "id": doc_ref[1].id}
 
 # Rota para listar clientes
 @app.get("/clientes/")
 def listar_clientes():
-    conn = mysql.connector.connect(**DB_CONFIG)
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM clientes")
-    clientes = cursor.fetchall()
-    cursor.close()
-    conn.close()
+    clientes_ref = db.collection("clientes").stream()
+    clientes = [{**doc.to_dict(), "id": doc.id} for doc in clientes_ref]
     return clientes
 
-# Rota para criar um produto
+# Rota para criar produto
 @app.post("/produtos/")
-def criar_produto(produto: Produto):
-    conn = mysql.connector.connect(**DB_CONFIG)
-    cursor = conn.cursor()
-    try:
-        cursor.execute("INSERT INTO produtos (nome, descricao, preco) VALUES (%s, %s, %s)",
-                       (produto.nome, produto.descricao, produto.preco))
-        conn.commit()
-        return {"message": "Produto criado com sucesso!"}
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    finally:
-        cursor.close()
-        conn.close()
+def criar_produto(produto: ProdutoCreate):
+    doc_ref = db.collection("produtos").add(produto.dict())
+    return {"message": "Produto criado com sucesso!", "id": doc_ref[1].id}
 
 # Rota para listar produtos
 @app.get("/produtos/")
 def listar_produtos():
-    conn = mysql.connector.connect(**DB_CONFIG)
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM produtos")
-    produtos = cursor.fetchall()
-    cursor.close()
-    conn.close()
+    produtos_ref = db.collection("produtos").stream()
+    produtos = [{**doc.to_dict(), "id": doc.id} for doc in produtos_ref]
     return produtos
 
-# Rota para criar um pedido
+# Rota para criar pedido
 @app.post("/pedidos/")
-def criar_pedido(pedido: Pedido):
-    conn = mysql.connector.connect(**DB_CONFIG)
-    cursor = conn.cursor()
-    try:
-        cursor.execute("INSERT INTO pedidos (cliente_id, status, total) VALUES (%s, %s, %s)",
-                       (pedido.cliente_id, pedido.status, pedido.total))
-        conn.commit()
-        return {"message": "Pedido criado com sucesso!"}
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    finally:
-        cursor.close()
-        conn.close()
+def criar_pedido(pedido: PedidoCreate):
+    doc_ref = db.collection("pedidos").add(pedido.dict())
+    return {"message": "Pedido criado com sucesso!", "id": doc_ref[1].id}
 
 # Rota para listar pedidos
 @app.get("/pedidos/")
 def listar_pedidos():
-    conn = mysql.connector.connect(**DB_CONFIG)
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT * FROM pedidos")
-    pedidos = cursor.fetchall()
-    cursor.close()
-    conn.close()
+    pedidos_ref = db.collection("pedidos").stream()
+    pedidos = [{**doc.to_dict(), "id": doc.id} for doc in pedidos_ref]
     return pedidos
 
-# Comando para rodar no Google Colab
-# !uvicorn app:app --host 0.0.0.0 --port 8000 --reload
-
-
-
+@app.get("/")
+def read_root():
+    return {"message": "API está rodando!"}
